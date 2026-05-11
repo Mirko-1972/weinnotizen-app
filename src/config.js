@@ -11,7 +11,7 @@ export const APP_CONFIG = {
     { key: 'preis', db: 'preis', label: 'Preis', type: 'number', min: 0, step: '0.01', group: 'Basisdaten' },
     { key: 'verkostungsdatum', db: 'verkostungsdatum', label: 'Datum der Verkostung', type: 'date', group: 'Basisdaten' },
 
-    { key: 'bewertung', db: 'bewertung', label: 'Bewertung (0–100 Punkte)', type: 'number', min: 0, max: 100, group: 'Bewertung' },
+   
 
     { key: 'koerper', db: 'koerper', label: 'Körper', type: 'combo', options: ['', 'dünn', 'wässrig', 'zu schlank', 'schlank', 'mittleres Volumen', 'vollmundig', 'fett', 'Trinkmarmelade'], group: 'Sensorik' },
     { key: 'intensitaet', db: 'intensitaet', label: 'Intensität', type: 'combo', options: ['', 'zu wenig Druck', 'ohne Bums', 'zart', 'filigran', 'druckvoll', 'sehr druckvoll', 'macht satt'], group: 'Sensorik' },
@@ -29,6 +29,6 @@ export const APP_CONFIG = {
     { key: 'gerbstoffe_bitterstoffe', db: 'gerbstoffe_bitterstoffe', label: 'Gerbstoffe und Bitterstoffe', type: 'combo', options: ['', 'fein', 'reif', 'betont', 'herb', 'kantig', 'kratzend', 'pelzig', 'adstringierend'], group: 'Struktur' },
 
     { key: 'abgang', db: 'abgang', label: 'Abgang', type: 'combo', options: ['', 'kurz', 'mittel', 'lang', 'ewig', 'unendlich', 'harmonisch', 'dominant'], group: 'Abschluss' },
-    { key: 'nochmal_kaufen', db: 'nochmal_kaufen', label: 'Nochmal kaufen', type: 'combo', options: ['', 'ja', 'nein', 'vielleicht'], group: 'Abschluss' }
-  ]
+    { key: 'nochmal_kaufen', db: 'nochmal_kaufen', label: 'Nochmal kaufen', type: 'combo', options: ['', 'ja', 'nein', 'vielleicht'], group: 'Abschluss' },
+   { key: 'bewertung', db: 'bewertung', label: 'Bewertung (0–100 Punkte)', type: 'number', min: 0, max: 100, group: 'Gesamtbewertung' },]
 };
