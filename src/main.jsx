@@ -19,6 +19,8 @@ function groupFields(fields) {
 function App() {
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authMode, setAuthMode] = useState('login');
   const [loginMessage, setLoginMessage] = useState('');
   const [wines, setWines] = useState([]);
   const [form, setForm] = useState({ ...emptyWine, id: null, bild_url: '' });
@@ -38,14 +40,30 @@ function App() {
     if (session) loadWines();
   }, [session]);
 
-  async function signIn(event) {
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  }, []);
+
+  async function handleAuth(event) {
     event.preventDefault();
     setLoginMessage('');
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin }
-    });
-    setLoginMessage(error ? error.message : 'Login-Link wurde versendet. Bitte E-Mail öffnen.');
+
+    const authCall = authMode === 'register'
+      ? supabase.auth.signUp({ email, password })
+      : supabase.auth.signInWithPassword({ email, password });
+
+    const { error } = await authCall;
+
+    if (error) {
+      setLoginMessage(error.message);
+      return;
+    }
+
+    setLoginMessage(authMode === 'register'
+      ? 'Konto erstellt. Falls Supabase eine Bestätigung verlangt, bitte E-Mail öffnen und bestätigen.'
+      : 'Login erfolgreich.');
   }
 
   async function loadWines() {
@@ -99,7 +117,24 @@ function App() {
   });
 
   if (!session) {
-    return <main className="login"><section className="card"><Wine size={42}/><h1>{APP_CONFIG.appTitle}</h1><p>Private Weinverkostungs-App. Melde dich per E-Mail-Link an.</p><form onSubmit={signIn}><input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="deine@email.de" required/><button>Login-Link senden</button></form>{loginMessage && <p className="hint">{loginMessage}</p>}</section></main>;
+    return (
+      <main className="login">
+        <section className="card">
+          <Wine size={42}/>
+          <h1>Weinnotizen</h1>
+          <p>Private Weinverkostungs-App. Melde dich mit E-Mail und Passwort an.</p>
+          <form onSubmit={handleAuth}>
+            <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="deine@email.de" required/>
+            <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Passwort" minLength="6" required/>
+            <button>{authMode === 'register' ? 'Konto erstellen' : 'Einloggen'}</button>
+          </form>
+          <button className="linkButton" type="button" onClick={() => { setAuthMode(authMode === 'register' ? 'login' : 'register'); setLoginMessage(''); }}>
+            {authMode === 'register' ? 'Ich habe schon ein Konto' : 'Noch kein Passwort? Konto erstellen'}
+          </button>
+          {loginMessage && <p className="hint">{loginMessage}</p>}
+        </section>
+      </main>
+    );
   }
 
   return <div className="page"><header className="hero"><div><p className="eyebrow"><Wine size={16}/> Private Verkostungsdatenbank</p><h1>{APP_CONFIG.appTitle}</h1><p>Erfasse, bewerte und finde deine Weine später wieder.</p></div><div className="actions"><button onClick={()=>{setForm({ ...emptyWine, id: null, bild_url: '' }); setImageFile(null); setShowForm(true);}}><Plus size={18}/> Neuer Wein</button><button className="secondary" onClick={()=>supabase.auth.signOut()}><LogOut size={18}/> Logout</button></div></header>
