@@ -1,0 +1,25 @@
+name: Keep Supabase Awake
+
+on:
+  schedule:
+    - cron: "0 8 * * 1,4"
+  workflow_dispatch:
+
+jobs:
+  keep-awake:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call Supabase Data API
+        run: |
+          response_code=$(curl -s -o /tmp/response.txt -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/wines?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+
+          echo "Supabase response code: $response_code"
+          cat /tmp/response.txt
+
+          if [ "$response_code" -lt 200 ] || [ "$response_code" -ge 300 ]; then
+            exit 1
+          fi
