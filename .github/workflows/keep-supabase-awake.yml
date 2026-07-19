@@ -2,7 +2,7 @@ name: Keep Supabase Awake
 
 on:
   schedule:
-    - cron: "0 8 * * 1,4"
+    - cron: "0 8 * * *"
   workflow_dispatch:
 
 jobs:
@@ -10,12 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Call Supabase Data API
+      - name: Touch Supabase keepalive table
         run: |
           response_code=$(curl -s -o /tmp/response.txt -w "%{http_code}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/wines?select=id&limit=1" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/keepalive" \
+            -X POST \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: resolution=merge-duplicates" \
+            -d "{\"id\":\"weinnotizen\",\"touched_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}")
 
           echo "Supabase response code: $response_code"
           cat /tmp/response.txt
